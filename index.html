@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediExplain Pro - Medical Report Analyzer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* [All CSS styles from previous implementation] */
+        /* Note: For production, move to separate CSS file */
+    </style>
+</head>
+<body>
+    <header>
+        <!-- [Header content from previous implementation] -->
+    </header>
+
+    <section class="hero">
+        <!-- [Hero section content] -->
+    </section>
+
+    <main class="main-content">
+        <!-- [Main tool interface] -->
+    </main>
+
+    <section class="features">
+        <!-- [Features section] -->
+    </section>
+
+    <section class="testimonials">
+        <!-- [Testimonials] -->
+    </section>
+
+    <section class="faq">
+        <!-- [FAQ section] -->
+    </section>
+
+    <footer>
+        <!-- [Footer content] -->
+    </footer>
+
+    <!-- Authentication Modal -->
+    <div class="auth-modal" id="authModal">
+        <!-- [Auth modal content] -->
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+    <script>
+        // Set PDF.js worker path
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
+
+        // ======================
+        // Authentication System
+        // ======================
+        const authModal = document.getElementById('authModal');
+        const authLink = document.getElementById('authLink');
+        
+        // Auth functions
+        async function loginUser(email, password) {
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || 'Login failed');
+                
+                localStorage.setItem('mediexplain_token', data.token);
+                updateAuthUI(data.user);
+                return true;
+            } catch (error) {
+                console.error('Login error:', error);
+                return false;
+            }
+        }
+
+        // ======================
+        // Report Processing
+        // ======================
+        async function processMedicalReport(reportData) {
+            const token = localStorage.getItem('mediexplain_token');
+            const headers = {
+                'Content-Type': 'application/json',
+                ...(token && { 'Authorization': `Bearer ${token}` })
+            };
+
+            try {
+                const response = await fetch('/api/reports/analyze', {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify(reportData)
+                });
+
+                if (!response.ok) throw new Error('Analysis failed');
+                return await response.json();
+            } catch (error) {
+                console.error('Processing error:', error);
+                throw error;
+            }
+        }
+
+        // ======================
+        // Main Application Logic
+        // ======================
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize UI components
+            initFileUpload();
+            initTabs();
+            initFAQ();
+            
+            // Check auth status
+            checkAuthStatus();
+        });
+
+        // [All other JavaScript functions from previous implementation]
+    </script>
+</body>
+</html>
